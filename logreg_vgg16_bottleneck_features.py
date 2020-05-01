@@ -1,15 +1,15 @@
-import os
 import glob
+import os
 import random
+
 import numpy as np
-from keras.preprocessing import image
-from keras.applications.vgg16 import VGG16
-from keras.applications.vgg16 import preprocess_input, decode_predictions
-from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import StandardScaler
-from keras.utils import np_utils
-from sklearn.metrics import log_loss, accuracy_score
 import pandas as pd
+from keras.applications.vgg16 import VGG16, preprocess_input
+from keras.preprocessing import image
+from keras.utils import np_utils
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, log_loss
+from sklearn.preprocessing import StandardScaler
 
 
 def read_img(imgpath, size):
