@@ -19,8 +19,8 @@ def read_img(imgpath, size):
 
 
 def extract_features(model, paths):
-    images = np.zeros((len(train_paths), 224, 224, 3), dtype='float32')
-    for i, imgpath in enumerate(train_paths):
+    images = np.zeros((len(paths), 224, 224, 3), dtype='float32')
+    for i, imgpath in enumerate(paths):
         img = read_img(imgpath, (224, 224))
         x = preprocess_input(np.expand_dims(img.copy(), axis=0))
         images[i] = x
@@ -44,14 +44,19 @@ if __name__ == "__main__":
     vgg_bottleneck.summary()
 
     # extract vgg16 bottleneck features
-    train_feats = extract_features(vgg_bottleneck, train_paths)
-    valid_feats = extract_features(vgg_bottleneck, valid_paths)
-    test_feats = extract_features(vgg_bottleneck, test_paths)
+    if not os.path.exists('train_feats_vgg16.npy'):
+        train_feats = extract_features(vgg_bottleneck, train_paths)
+        valid_feats = extract_features(vgg_bottleneck, valid_paths)
+        test_feats = extract_features(vgg_bottleneck, test_paths)
 
-    # save features
-    np.save('train_feats_vgg16.npy', train_feats)
-    np.save('valid_feats_vgg16.npy', valid_feats)
-    np.save('test_feats_vgg16.npy', test_feats)
+        # save features
+        np.save('train_feats_vgg16.npy', train_feats)
+        np.save('valid_feats_vgg16.npy', valid_feats)
+        np.save('test_feats_vgg16.npy', test_feats)
+    else:
+        train_feats = np.load('train_feats_vgg16.npy')
+        valid_feats = np.load('valid_feats_vgg16.npy')
+        test_feats = np.load('test_feats_vgg16.npy')
 
     # normalize features
     scaler = StandardScaler().fit(train_feats)
@@ -60,11 +65,11 @@ if __name__ == "__main__":
     test_feats_norm = scaler.transform(test_feats)
 
     # make labels
-    dogs = list(set([x.split('/')[3] for x in train_paths]))
+    dogs = list(set([x.split('/')[2] for x in train_paths]))
     dogs = sorted(dogs)
 
-    train_labels = [dogs.index(x) for x in [x.split('/')[3] for x in train_paths]]
-    valid_labels = [dogs.index(x) for x in [x.split('/')[3] for x in valid_paths]]
+    train_labels = [dogs.index(x) for x in [x.split('/')[2] for x in train_paths]]
+    valid_labels = [dogs.index(x) for x in [x.split('/')[2] for x in valid_paths]]
 
     # for calculating validation accuracy
     valid_onehot = np_utils.to_categorical(valid_labels)
@@ -85,7 +90,7 @@ if __name__ == "__main__":
 
     # 列ごとにDataFrameへデータを格納
     data = {}
-    data['id'] = [x.split('/')[4].replace('.jpg', '') for x in test_paths]
+    data['id'] = [x.split('/')[3].replace('.jpg', '') for x in test_paths]
     for i, dog in enumerate(dogs):
         data[dog] = test_probs[i]
     submissions = pd.DataFrame(data=data, columns=['id'] + dogs)
