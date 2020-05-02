@@ -4,7 +4,7 @@ import random
 
 import numpy as np
 import pandas as pd
-from keras.applications.xception import Xception, preprocess_input
+from keras.applications.inception_v3 import InceptionV3, preprocess_input
 from keras.preprocessing import image
 from keras.utils import np_utils
 from sklearn.linear_model import LogisticRegression
@@ -40,23 +40,23 @@ if __name__ == "__main__":
     random.shuffle(train_paths)
 
     # load pretrained model
-    xception_bottleneck = Xception(weights='imagenet', include_top=False, pooling='avg')
-    xception_bottleneck.summary()
+    inception_bottleneck = InceptionV3(weights='imagenet', include_top=False, pooling='avg')
+    inception_bottleneck.summary()
 
-    # extract Xception bottleneck features
-    if not os.path.exists('train_feats_xception.npy'):
-        train_feats = extract_features(xception_bottleneck, train_paths)
-        valid_feats = extract_features(xception_bottleneck, valid_paths)
-        test_feats = extract_features(xception_bottleneck, test_paths)
+    # extract Inception bottleneck features
+    if not os.path.exists('train_feats_inception.npy'):
+        train_feats = extract_features(inception_bottleneck, train_paths)
+        valid_feats = extract_features(inception_bottleneck, valid_paths)
+        test_feats = extract_features(inception_bottleneck, test_paths)
 
         # save features
-        np.save('train_feats_xception.npy', train_feats)
-        np.save('valid_feats_xception.npy', valid_feats)
-        np.save('test_feats_xception.npy', test_feats)
+        np.save('train_feats_inception.npy', train_feats)
+        np.save('valid_feats_inception.npy', valid_feats)
+        np.save('test_feats_inception.npy', test_feats)
     else:
-        train_feats = np.load('train_feats_xception.npy')
-        valid_feats = np.load('valid_feats_xception.npy')
-        test_feats = np.load('test_feats_xception.npy')
+        train_feats = np.load('train_feats_inception.npy')
+        valid_feats = np.load('valid_feats_inception.npy')
+        test_feats = np.load('test_feats_inception.npy')
 
     # normalize features
     scaler = StandardScaler().fit(train_feats)
@@ -96,4 +96,4 @@ if __name__ == "__main__":
     submissions = pd.DataFrame(data=data, columns=['id'] + dogs)
 
     os.makedirs('submits', exist_ok=True)
-    submissions.to_csv('submits/logreg_xception_bottleneck.csv', index=False, header=True)
+    submissions.to_csv('submits/logreg_inception_bottleneck.csv', index=False, header=True)
